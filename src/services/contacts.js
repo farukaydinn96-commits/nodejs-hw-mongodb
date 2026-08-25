@@ -1,28 +1,50 @@
 import { Contact } from "../db/Contact.js";
 
-export const getAllContacts = async () => {
-  const contacts = await Contact.find();
-  return contacts;
+export const getAllContacts = async ({
+  page = 1,
+  perPage = 10,
+  sortOrder = "asc",
+  sortBy = "name",
+  filter = {},
+}) => {
+  const skip = (page - 1) * perPage;
+
+  const contactsQuery = Contact.find(filter);
+  const contacts = await contactsQuery
+    .skip(skip)
+    .limit(perPage)
+    .sort({ [sortBy]: sortOrder });
+
+  const totalItems = await Contact.countDocuments(filter);
+  const totalPages = Math.ceil(totalItems / perPage);
+  const hasNextPage = page < totalPages;
+  const hasPreviousPage = page > 1;
+
+  return {
+    data: contacts,
+    page,
+    perPage,
+    totalItems,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+  };
 };
 
 export const getContactById = async (contactId) => {
-  const contact = await Contact.findById(contactId);
-  return contact;
+  return await Contact.findById(contactId);
 };
 
 export const createContact = async (payload) => {
-  const contact = await Contact.create(payload);
-  return contact;
+  return await Contact.create(payload);
 };
 
 export const updateContact = async (contactId, payload) => {
-  const contact = await Contact.findByIdAndUpdate(contactId, payload, {
+  return await Contact.findByIdAndUpdate(contactId, payload, {
     new: true,
   });
-  return contact;
 };
 
 export const deleteContact = async (contactId) => {
-  const contact = await Contact.findByIdAndDelete(contactId);
-  return contact;
+  return await Contact.findByIdAndDelete(contactId);
 };

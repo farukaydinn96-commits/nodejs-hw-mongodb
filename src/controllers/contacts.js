@@ -8,11 +8,31 @@ import {
 } from "../services/contacts.js";
 
 export const getContactsController = async (req, res) => {
-  const contacts = await getAllContacts();
+  const page = parseInt(req.query.page, 10) || 1;
+  const perPage = parseInt(req.query.perPage, 10) || 10;
+
+  const sortOrder = ["asc", "desc"].includes(req.query.sortOrder)
+    ? req.query.sortOrder
+    : "asc";
+  const sortBy = req.query.sortBy || "name";
+
+  const filter = {};
+  if (req.query.type) filter.contactType = req.query.type;
+  if (req.query.isFavourite === "true") filter.isFavourite = true;
+  if (req.query.isFavourite === "false") filter.isFavourite = false;
+
+  const contactsData = await getAllContacts({
+    page,
+    perPage,
+    sortOrder,
+    sortBy,
+    filter,
+  });
+
   res.status(200).json({
     status: 200,
     message: "Successfully found contacts!",
-    data: contacts,
+    data: contactsData,
   });
 };
 
