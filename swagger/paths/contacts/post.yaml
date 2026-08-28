@@ -1,0 +1,40 @@
+tags:
+  - Contacts
+summary: Create a new contact
+operationId: createContact
+description: Add a new contact for the authenticated user. Supports multipart/form-data for image uploads.
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - name
+          - phoneNumber
+          - contactType
+        properties:
+          name:
+            type: string
+          phoneNumber:
+            type: string
+          email:
+            type: string
+          isFavourite:
+            type: boolean
+          contactType:
+            type: string
+            enum: [work, home, personal]
+          photo:
+            type: string
+            format: binary
+            description: Contact's photo image
+responses:
+  "201":
+    description: Successfully created a contact!
+  "400":
+    description: Bad Request (Validation error)
+  "401":
+    description: Unauthorized
